@@ -14,6 +14,7 @@ export interface ChatMessage {
   id: number;
   text: string;
   sender: "user" | "bot";
+  pending?: boolean;
 }
 
 export interface GradientChatInputProps {
@@ -145,8 +146,23 @@ export default function GradientChatInput({
     };
   }, []);
 
-  const pushMessage = (text: string, sender: ChatMessage["sender"]) =>
-    setMessages((prev) => [...prev, { id: idRef.current++, text, sender }]);
+  const pushMessage = (
+    text: string,
+    sender: ChatMessage["sender"],
+    pending = false
+  ) => {
+    const id = idRef.current++;
+    setMessages((prev) => [...prev, { id, text, sender, pending }]);
+    return id;
+  };
+
+  const updateMessage = (id: number, text: string) =>
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, text, pending: false } : m))
+    );
+
+  const removeMessage = (id: number) =>
+    setMessages((prev) => prev.filter((m) => m.id !== id));
 
   const handleSend = () => {
     if (disabled) return;
@@ -159,11 +175,15 @@ export default function GradientChatInput({
     setValue("");
 
     if (result && typeof result !== "string") {
-      // async onSend — its resolved reply (if any) replaces the canned autoReply
+      // async onSend — show a "Thinking…" placeholder immediately, then
+      // swap it for the resolved reply (which replaces the canned autoReply)
+      const thinkingId = pushMessage("Thinking…", "bot", true);
       void result.then((reply) => {
         if (reply) {
-          pushMessage(reply, "bot");
+          updateMessage(thinkingId, reply);
           playReceive();
+        } else {
+          removeMessage(thinkingId);
         }
       });
       return;
@@ -245,6 +265,7 @@ export default function GradientChatInput({
                   m.sender === "user"
                     ? "self-end rounded-[14px_14px_6px_14px] border border-border bg-background text-foreground"
                     : "self-start rounded-[14px_14px_14px_6px] bg-primary text-primary-foreground",
+                  m.pending && "animate-pulse italic opacity-80",
                 )}
               >
                 {m.text}
