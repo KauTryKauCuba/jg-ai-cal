@@ -10,6 +10,12 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  /* #root is a column flex container; its default align-items:stretch
+     otherwise wins over margin:auto and stretches this to full width
+     instead of centering it. */
+  align-self: center;
   box-sizing: border-box;
   padding: 30px 30px 46px;
   font-family: var(--sans);
@@ -23,6 +29,9 @@
 
 .page {
   width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  align-self: center;
   box-sizing: border-box;
   padding: 0 30px 30px;
   font-family: var(--sans);
