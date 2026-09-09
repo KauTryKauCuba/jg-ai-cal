@@ -28,29 +28,26 @@ function App() {
 
   return (
     <div>
-      {/* Hero band: gradient mesh confined to the header + page-title area
-          only, in normal document flow (scrolls away with the page) — not a
-          persistent full-page overlay. */}
-      <div className="hero-band">
-        <div className="hero-band-bg">
-          <GradientBackground className="h-full w-full" />
-        </div>
-        <div className="hero-band-content">
-          <nav className="tab-bar">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                className={activeTab === tab.id ? "tab active" : "tab"}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-          <h1>{active.heading}</h1>
-          <p className="subtitle">{active.subtitle}</p>
-        </div>
+      {/* Full-page background, back to how it was before the DESIGN.md pass. */}
+      <div className="page-bg">
+        <GradientBackground className="h-full w-full" />
+      </div>
+
+      <div className="hero-band-content">
+        <nav className="tab-bar">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={activeTab === tab.id ? "tab active" : "tab"}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <h1>{active.heading}</h1>
+        <p className="subtitle">{active.subtitle}</p>
       </div>
 
       {activeTab === "resume" && <ResumePage />}

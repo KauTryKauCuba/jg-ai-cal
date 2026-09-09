@@ -1,16 +1,8 @@
-/* Hero band — gradient mesh confined to the header + page-title area only,
-   in normal document flow so it scrolls away with the page (DESIGN.md:
-   "mesh confined to the hero band only... before the page drops to plain
-   white for everything else"). */
-.hero-band {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-band-bg {
-  position: absolute;
+/* Full-page background, behind everything. */
+.page-bg {
+  position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -10;
   pointer-events: none;
 }
 
