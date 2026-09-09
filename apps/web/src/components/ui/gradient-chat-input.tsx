@@ -212,7 +212,7 @@ export default function GradientChatInput({
 
   return (
     <div className={cn("relative mx-auto flex w-full max-w-lg flex-col", className)}>
-      <div className="flex flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-[0_10px_20px_-6px_rgba(0,0,0,0.1)]">
+      <div className="flex flex-col overflow-hidden rounded-none border border-border bg-background shadow-[0_10px_20px_-6px_rgba(0,0,0,0.1)]">
         {/* message thread — normal top-to-bottom flow, grows with the page */}
         {visible.length > 0 && (
           <div className="flex flex-col gap-2 p-4">
@@ -230,9 +230,10 @@ export default function GradientChatInput({
                     transition={{ type: "spring", stiffness: 420, damping: 32 }}
                     className={cn(
                       "max-w-[260px] break-words px-3.5 py-2.5 text-sm shadow-[0_4px_10px_-4px_rgba(0,0,0,0.15)]",
+                      "rounded-none",
                       m.sender === "user"
-                        ? "rounded-[14px_14px_6px_14px] border border-border bg-background text-foreground"
-                        : "rounded-[14px_14px_14px_6px] bg-primary text-primary-foreground",
+                        ? "border border-border bg-background text-foreground"
+                        : "bg-primary text-primary-foreground",
                       m.pending && "animate-pulse italic opacity-80",
                     )}
                   >
@@ -254,7 +255,7 @@ export default function GradientChatInput({
               size="icon"
               aria-label="Add attachment"
               disabled={disabled}
-              className="size-10 shrink-0 rounded-xl"
+              className="size-10 shrink-0 rounded-none"
             >
               <Plus className="size-5" />
             </Button>
@@ -270,7 +271,7 @@ export default function GradientChatInput({
               placeholder={placeholder}
               aria-label="Message"
               disabled={disabled}
-              className="h-auto flex-1 border-0 bg-transparent px-0 py-0 text-base shadow-none focus-visible:ring-0 dark:bg-transparent md:text-sm"
+              className="h-auto flex-1 rounded-none border-0 bg-transparent px-0 py-0 text-base shadow-none focus-visible:ring-0 dark:bg-transparent md:text-sm"
             />
           </div>
           <Button
@@ -281,7 +282,7 @@ export default function GradientChatInput({
             variant={hasText ? "default" : "secondary"}
             size="icon"
             aria-label="Send message"
-            className="size-10 shrink-0 rounded-xl transition-colors active:scale-95"
+            className="size-10 shrink-0 rounded-none transition-colors active:scale-95"
           >
             <Send className="size-5" strokeWidth={2.25} />
           </Button>
