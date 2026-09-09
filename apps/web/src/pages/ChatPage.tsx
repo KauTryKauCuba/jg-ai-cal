@@ -12,6 +12,11 @@ const PROVIDER_LABELS: Record<CalcProvider, string> = {
 
 const MAX_QUESTIONS = 3;
 
+// Fixed buffer for everything below the bubble stack that doesn't vary with
+// message length: the 70px gap above the input, the input card itself, and
+// the label/usage-box/counter/reset-button stacked beneath it, plus margin.
+const NON_BUBBLE_BUFFER_PX = 650;
+
 interface Usage {
   inputTokens: number;
   outputTokens: number;
@@ -24,12 +29,14 @@ export default function ChatPage() {
   const [askedCount, setAskedCount] = useState(0);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
+  const [bubbleStackHeight, setBubbleStackHeight] = useState(0);
 
   const limitReached = askedCount >= MAX_QUESTIONS;
 
   function resetSession() {
     setAskedCount(0);
     setUsage(null);
+    setBubbleStackHeight(0);
     setSessionKey((k) => k + 1); // remounts GradientChatInput, clearing its bubbles
   }
 
@@ -81,12 +88,12 @@ export default function ChatPage() {
       // GradientChatInput's message bubbles float above the input via
       // absolute positioning, so they don't add to this container's layout
       // height on their own. With justify-end anchoring the input near the
-      // bottom of a fixed box, a growing conversation would run out of room
-      // and climb up past the top of the page into the tab bar. Scaling the
-      // min-height with the number of questions asked pushes the input (and
-      // the floating room above it) further down the page as needed, so the
-      // page grows/scrolls downward instead.
-      style={{ minHeight: 500 + askedCount * 260 }}
+      // bottom of the box, the box needs to be tall enough to give the real,
+      // measured bubble stack room to grow into — a fixed per-question guess
+      // isn't reliable since answer length varies a lot (short numbers vs.
+      // multi-line sentences). onBubbleStackHeightChange reports the actual
+      // rendered height so this can size the box correctly regardless.
+      style={{ minHeight: bubbleStackHeight + NON_BUBBLE_BUFFER_PX }}
     >
       <GradientChatInput
         key={sessionKey}
@@ -94,6 +101,7 @@ export default function ChatPage() {
         autoReply={null}
         disabled={limitReached}
         onSend={askQuestion}
+        onBubbleStackHeightChange={setBubbleStackHeight}
       />
 
       <label className="flex items-center gap-2 text-sm text-gray-600">

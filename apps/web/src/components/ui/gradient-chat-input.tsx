@@ -38,6 +38,14 @@ export interface GradientChatInputProps {
   onSend?: (message: string) => void | string | Promise<string | void>;
   /** Disables the input and buttons (e.g. after a single-shot exchange). */
   disabled?: boolean;
+  /**
+   * Fired with the bubble stack's real rendered height (px) whenever it
+   * changes — since the bubbles float above the input via absolute
+   * positioning, a parent that anchors this component near the bottom of
+   * its own box (so the bubbles have room to grow into) can't otherwise
+   * know how much room is actually needed for the current message lengths.
+   */
+  onBubbleStackHeightChange?: (height: number) => void;
   className?: string;
 }
 
@@ -64,6 +72,7 @@ export default function GradientChatInput({
   gradientColors = DEFAULT_GRADIENT,
   onSend,
   disabled = false,
+  onBubbleStackHeightChange,
   className,
 }: GradientChatInputProps) {
   const [value, setValue] = React.useState("");
@@ -71,6 +80,17 @@ export default function GradientChatInput({
   const idRef = React.useRef(0);
   const timersRef = React.useRef<ReturnType<typeof setTimeout>[]>([]);
   const audioRef = React.useRef<AudioContext | null>(null);
+  const bubbleStackRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const el = bubbleStackRef.current;
+    if (!el || !onBubbleStackHeightChange) return;
+    const observer = new ResizeObserver(([entry]) => {
+      onBubbleStackHeightChange(entry.contentRect.height);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onBubbleStackHeightChange]);
 
   /* lazy AudioContext — only created on the first user gesture */
   const getAudioContext = React.useCallback(() => {
@@ -250,7 +270,10 @@ export default function GradientChatInput({
         </div>
 
         {/* bubble stack — floats above the card */}
-        <div className="pointer-events-none absolute bottom-[70px] right-0 z-[1] flex w-full flex-col items-end gap-2">
+        <div
+          ref={bubbleStackRef}
+          className="pointer-events-none absolute bottom-[70px] right-0 z-[1] flex w-full flex-col items-end gap-2"
+        >
           <AnimatePresence initial={false}>
             {visible.map((m) => (
               <motion.div
