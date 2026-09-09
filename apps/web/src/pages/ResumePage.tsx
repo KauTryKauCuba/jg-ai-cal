@@ -78,7 +78,29 @@ export default function ResumePage() {
   const [error, setError] = useState<string | null>(null);
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [isDragOver, setIsDragOver] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  function pickFile(f: File | null | undefined) {
+    setFile(f && f.type === "application/pdf" ? f : null);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragOver(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragOver(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragOver(false);
+    pickFile(e.dataTransfer.files?.[0]);
+  }
 
   function toggleProvider(provider: ProviderResult["provider"]) {
     setSelectedProviders((prev) => {
@@ -159,20 +181,70 @@ export default function ResumePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="upload-form">
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-        <button
-          type="submit"
-          disabled={!file || loading || selectedProviders.size === 0}
+        <div
+          className={
+            isDragOver ? "dropzone dropzone-active" : file ? "dropzone dropzone-filled" : "dropzone"
+          }
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Choose or drop a resume PDF"
         >
-          {loading ? "Processing..." : "Upload & Extract"}
-        </button>
-        {loading && (
-          <span className="timer">{(elapsedMs / 1000).toFixed(1)}s</span>
-        )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => pickFile(e.target.files?.[0])}
+            className="dropzone-input"
+          />
+          <svg
+            className="dropzone-icon"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path d="M12 16V4M12 4L7 9M12 4l5 5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div className="dropzone-text">
+            {file ? (
+              <>
+                <strong>{file.name}</strong>
+                <span>Click or drop to replace</span>
+              </>
+            ) : (
+              <>
+                <strong>Choose a resume PDF</strong>
+                <span>or drag and drop it here</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="upload-actions">
+          <button
+            type="submit"
+            className="upload-button"
+            disabled={!file || loading || selectedProviders.size === 0}
+          >
+            {loading ? "Processing…" : "Upload & Extract"}
+          </button>
+          {loading && (
+            <span className="timer">{(elapsedMs / 1000).toFixed(1)}s</span>
+          )}
+        </div>
       </form>
 
       {selectedProviders.size === 0 && (
