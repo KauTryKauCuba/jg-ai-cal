@@ -8,7 +8,7 @@ import { extractResumeFromImages as extractWithDeepSeek } from "./deepseek.js";
 import { extractResumeFromImages as extractWithGroq } from "./groq.js";
 import { extractResumeFromImages as extractWithMimo } from "./mimo.js";
 import { extractResumeFromPdf as extractWithMistral } from "./mistral.js";
-import { pdfToBase64Images } from "./pdf.js";
+import { getPdfPageCount, MAX_PAGES, pdfToBase64Images } from "./pdf.js";
 import type { ProviderResult } from "./types.js";
 
 const app = new Hono();
@@ -38,6 +38,23 @@ app.post("/api/resumes", async (c) => {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Checked once, up front, for every provider — Mistral takes the raw PDF
+  // directly (not through pdfToBase64Images), so it would otherwise skip
+  // this limit entirely if it were the only provider selected.
+  let pageCount: number;
+  try {
+    pageCount = await getPdfPageCount(buffer);
+  } catch (err) {
+    return c.json({ error: `Failed to read PDF: ${(err as Error).message}` }, 400);
+  }
+  if (pageCount > MAX_PAGES) {
+    return c.json(
+      { error: `PDF has ${pageCount} pages, which exceeds the ${MAX_PAGES}-page limit for this tool.` },
+      400
+    );
+  }
+
   const needsImages =
     requestedProviders.includes("deepseek") ||
     requestedProviders.includes("groq") ||
