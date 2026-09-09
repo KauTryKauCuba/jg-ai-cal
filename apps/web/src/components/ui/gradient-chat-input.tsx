@@ -255,7 +255,7 @@ export default function GradientChatInput({
               size="icon"
               aria-label="Add attachment"
               disabled={disabled}
-              className="size-10 shrink-0 rounded-xl"
+              className="size-10 shrink-0 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0"
             >
               <Plus className="size-5" />
             </Button>
@@ -271,7 +271,7 @@ export default function GradientChatInput({
               placeholder={placeholder}
               aria-label="Message"
               disabled={disabled}
-              className="h-auto flex-1 border-0 bg-transparent px-0 py-0 text-base shadow-none focus-visible:ring-0 dark:bg-transparent md:text-sm"
+              className="h-auto flex-1 border-0 bg-transparent px-0 py-0 text-base shadow-none outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent md:text-sm"
             />
           </div>
           <Button
@@ -282,7 +282,7 @@ export default function GradientChatInput({
             variant={hasText ? "default" : "secondary"}
             size="icon"
             aria-label="Send message"
-            className="size-10 shrink-0 rounded-xl transition-colors active:scale-95"
+            className="size-10 shrink-0 rounded-xl transition-colors focus-visible:ring-0 focus-visible:ring-offset-0 active:scale-95"
           >
             <Send className="size-5" strokeWidth={2.25} />
           </Button>
