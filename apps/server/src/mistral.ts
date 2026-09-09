@@ -1,5 +1,6 @@
 import { safeJsonParse } from "./json.js";
 import { calculateMistralCostUsd } from "./pricing.js";
+import { fetchWithRetry } from "./http.js";
 import type { ProviderResult } from "./types.js";
 
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/ocr";
@@ -90,7 +91,7 @@ export async function extractResumeFromPdf(
       throw new Error("MISTRAL_API_KEY is not set");
     }
 
-    const response = await fetch(MISTRAL_API_URL, {
+    const response = await fetchWithRetry(MISTRAL_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

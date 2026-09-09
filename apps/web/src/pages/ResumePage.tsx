@@ -54,29 +54,30 @@ interface ProviderResult {
   error?: string;
 }
 
-interface ApiResponse {
-  resumeId: number;
-  createdAt: string;
-  results: ProviderResult[];
-}
+type Provider = ProviderResult["provider"];
 
-const PROVIDER_LABELS: Record<ProviderResult["provider"], string> = {
+const PROVIDER_LABELS: Record<Provider, string> = {
   deepseek: "DeepSeek",
   mistral: "Mistral",
   groq: "Groq",
   mimo: "MiMo",
 };
 
-const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as ProviderResult["provider"][];
+const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as Provider[];
 
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [selectedProviders, setSelectedProviders] = useState<
-    Set<ProviderResult["provider"]>
-  >(new Set(ALL_PROVIDERS));
+  const [selectedProviders, setSelectedProviders] = useState<Set<Provider>>(
+    new Set(ALL_PROVIDERS)
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<ApiResponse | null>(null);
+  // The providers a run was actually submitted with (snapshotted so toggling
+  // checkboxes mid-run doesn't reshuffle the grid), and results filled in one
+  // at a time as each provider's own extraction finishes — instead of
+  // waiting for every provider before showing anything.
+  const [activeProviders, setActiveProviders] = useState<Provider[]>([]);
+  const [results, setResults] = useState<Map<Provider, ProviderResult>>(new Map());
   const [elapsedMs, setElapsedMs] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const timerRef = useRef<number | null>(null);
@@ -102,7 +103,7 @@ export default function ResumePage() {
     pickFile(e.dataTransfer.files?.[0]);
   }
 
-  function toggleProvider(provider: ProviderResult["provider"]) {
+  function toggleProvider(provider: Provider) {
     setSelectedProviders((prev) => {
       const next = new Set(prev);
       if (next.has(provider)) next.delete(provider);
@@ -131,26 +132,55 @@ export default function ResumePage() {
     e.preventDefault();
     if (!file || selectedProviders.size === 0) return;
 
+    const providers = Array.from(selectedProviders);
     setLoading(true);
     setError(null);
-    setResponse(null);
+    setActiveProviders(providers);
+    setResults(new Map());
 
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("providers", Array.from(selectedProviders).join(","));
+      formData.append("providers", providers.join(","));
 
       const res = await fetch("/api/resumes", {
         method: "POST",
         body: formData,
       });
 
-      const json = (await res.json()) as ApiResponse | { error: string };
-
-      if (!res.ok && "error" in json) {
+      if (!res.ok) {
+        const json = (await res.json()) as { error: string };
         setError(json.error);
-      } else {
-        setResponse(json as ApiResponse);
+        return;
+      }
+
+      // Server streams newline-delimited JSON, one line per provider as it
+      // finishes, rather than one combined response after all of them
+      // complete — read and apply each line as it arrives.
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("Streaming is not supported by this browser");
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, newlineIndex).trim();
+          buffer = buffer.slice(newlineIndex + 1);
+          if (!line) continue;
+
+          const msg = JSON.parse(line) as
+            | { type: "resume"; resumeId: number; createdAt: string }
+            | { type: "result"; result: ProviderResult };
+
+          if (msg.type === "result") {
+            setResults((prev) => new Map(prev).set(msg.result.provider, msg.result));
+          }
+        }
       }
     } catch (err) {
       setError((err as Error).message);
@@ -247,13 +277,31 @@ export default function ResumePage() {
 
       {error && <div className="error-box">Error: {error}</div>}
 
-      {response && (
+      {activeProviders.length > 0 && (
         <div className="comparison-grid">
-          {response.results.map((result) => (
-            <ProviderPanel key={result.provider} result={result} />
-          ))}
+          {activeProviders.map((provider) => {
+            const result = results.get(provider);
+            return result ? (
+              <ProviderPanel key={provider} result={result} />
+            ) : (
+              <PendingProviderPanel key={provider} provider={provider} />
+            );
+          })}
         </div>
       )}
+    </div>
+  );
+}
+
+function PendingProviderPanel({ provider }: { provider: Provider }) {
+  return (
+    <div className="provider-panel">
+      <h2>{PROVIDER_LABELS[provider]}</h2>
+      <div className="pending-box" aria-label="Extracting">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="pending-dot" style={{ animationDelay: `${i * 0.15}s` }} />
+        ))}
+      </div>
     </div>
   );
 }

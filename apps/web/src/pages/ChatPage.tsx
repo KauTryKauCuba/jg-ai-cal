@@ -86,7 +86,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative flex min-h-[500px] w-full flex-col items-center justify-center gap-4 p-4 sm:p-8">
+    <div className="relative flex min-h-[400px] w-full flex-col items-center justify-center gap-4 p-4 sm:p-8">
       <GradientChatInput
         key={sessionKey}
         placeholder="Ask a calculation, e.g. what's 12% of 350?"
@@ -123,7 +123,7 @@ export default function ChatPage() {
       <button
         type="button"
         onClick={resetSession}
-        className="h-[37px] rounded-full border border-[var(--input)] px-4 text-xs font-medium text-[var(--text-mute)] transition-colors hover:bg-[var(--canvas-soft)]"
+        className="h-[29.6px] rounded-full border border-[var(--input)] px-4 text-xs font-medium text-[var(--text-mute)] transition-colors hover:bg-[var(--canvas-soft)]"
       >
         Reset
       </button>

@@ -229,15 +229,33 @@ export default function GradientChatInput({
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 420, damping: 32 }}
                     className={cn(
-                      "max-w-[260px] break-words px-3.5 py-2.5 text-sm shadow-[0_4px_10px_-4px_rgba(0,0,0,0.15)]",
-                      "rounded-none",
+                      "max-w-[208px] break-words px-3.5 py-2.5 text-sm shadow-[0_4px_10px_-4px_rgba(0,0,0,0.15)]",
+                      "rounded-2xl",
+                      m.sender === "user" ? "rounded-br-md" : "rounded-bl-md",
                       m.sender === "user"
                         ? "border border-border bg-background text-foreground"
                         : "bg-primary text-primary-foreground",
-                      m.pending && "animate-pulse italic opacity-80",
                     )}
                   >
-                    {m.text}
+                    {m.pending ? (
+                      <span className="flex items-center gap-1 py-0.5" aria-label="Thinking">
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            className="size-1.5 rounded-full bg-current"
+                            animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                            transition={{
+                              duration: 0.9,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                              delay: i * 0.15,
+                            }}
+                          />
+                        ))}
+                      </span>
+                    ) : (
+                      m.text
+                    )}
                   </motion.div>
                 </div>
               ))}

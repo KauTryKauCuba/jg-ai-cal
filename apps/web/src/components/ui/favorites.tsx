@@ -19,6 +19,7 @@ export function GradientBackground({ className }: { className?: string }) {
       }}
     >
       <div
+        className="gradient-mesh-layer"
         style={{
           position: "absolute",
         inset: 0,

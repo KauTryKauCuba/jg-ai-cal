@@ -2,6 +2,7 @@ import { EXTRACTION_PROMPT } from "./prompts.js";
 import { resizeBase64PngToMaxDimension } from "./image.js";
 import { isResumeFalse, safeJsonParse } from "./json.js";
 import { calculateMimoCostUsd } from "./pricing.js";
+import { fetchWithRetry } from "./http.js";
 import type { ProviderResult } from "./types.js";
 
 const MIMO_API_URL = "https://api.xiaomimimo.com/v1/chat/completions";
@@ -39,7 +40,7 @@ export async function extractResumeFromImages(
       image_url: { url: `data:image/png;base64,${base64}` },
     }));
 
-    const response = await fetch(MIMO_API_URL, {
+    const response = await fetchWithRetry(MIMO_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

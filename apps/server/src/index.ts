@@ -2,6 +2,7 @@ import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
+import { stream } from "hono/streaming";
 import { askDeepSeekCalc, askGroqCalc, askMimoCalc } from "./calcChat.js";
 import { initSchema, insertResume, insertExtractionResult } from "./db.js";
 import { extractResumeFromImages as extractWithDeepSeek } from "./deepseek.js";
@@ -72,40 +73,40 @@ app.post("/api/resumes", async (c) => {
     ? buffer.toString("base64")
     : "";
 
-  const settled = await Promise.allSettled(
-    requestedProviders.map((provider) => {
-      if (provider === "deepseek") return extractWithDeepSeek(base64Images);
-      if (provider === "groq") return extractWithGroq(base64Images);
-      if (provider === "mimo") return extractWithMimo(base64Images);
-      return extractWithMistral(base64Pdf);
-    })
-  );
+  c.header("Content-Type", "application/x-ndjson");
+  return stream(c, async (streamApi) => {
+    const resume = await insertResume(file.name);
+    await streamApi.write(
+      JSON.stringify({ type: "resume", resumeId: resume.id, createdAt: resume.created_at }) +
+        "\n"
+    );
 
-  function toResult(
-    result: PromiseSettledResult<ProviderResult>,
-    provider: Provider
-  ): ProviderResult {
-    if (result.status === "fulfilled") return result.value;
-    return {
-      provider,
-      isResume: false,
-      costUsd: 0,
-      durationMs: 0,
-      error: result.reason?.message ?? String(result.reason),
-    };
-  }
-
-  const results = settled.map((result, i) => toResult(result, requestedProviders[i]));
-
-  const resume = await insertResume(file.name);
-  await Promise.all(
-    results.map((result) => insertExtractionResult(resume.id, result))
-  );
-
-  return c.json({
-    resumeId: resume.id,
-    createdAt: resume.created_at,
-    results,
+    // Kick off every provider in parallel, but write each result to the
+    // stream as soon as it individually settles — instead of collecting
+    // into an array and waiting for Promise.allSettled, so the client can
+    // render a finished card immediately instead of waiting on the slowest
+    // provider.
+    await Promise.all(
+      requestedProviders.map(async (provider) => {
+        let result: ProviderResult;
+        try {
+          if (provider === "deepseek") result = await extractWithDeepSeek(base64Images);
+          else if (provider === "groq") result = await extractWithGroq(base64Images);
+          else if (provider === "mimo") result = await extractWithMimo(base64Images);
+          else result = await extractWithMistral(base64Pdf);
+        } catch (err) {
+          result = {
+            provider,
+            isResume: false,
+            costUsd: 0,
+            durationMs: 0,
+            error: (err as Error).message,
+          };
+        }
+        await insertExtractionResult(resume.id, result);
+        await streamApi.write(JSON.stringify({ type: "result", result }) + "\n");
+      })
+    );
   });
 });
 

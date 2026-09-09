@@ -2,9 +2,9 @@
 
 ## Overview
 
-Jejaku is a personal projects site, not a product marketing site — the design language reflects that: quiet, editorial, and light on chrome. Every page opens with the **gradient mesh** — a soft, slowly-drifting radial-blob backdrop in cream, amber, seafoam, teal, and emerald green — sitting behind the header and hero only, before the page drops to plain white (`{colors.canvas}`) for everything else. There are no dashboard mockups, no pricing tables, no dark "product UI" surfaces. The visual vocabulary is: gradient hero, flat bordered cards, a pill-shaped auth/onboarding card, and a scroll-driven tab section.
+Jejaku is a personal projects site, not a product marketing site — the design language reflects that: quiet, editorial, and light on chrome. Every page opens with the **gradient mesh** — a soft, slowly-drifting radial-blob backdrop in cream, amber, seafoam, and ocean blue — sitting behind the header and hero only, before the page drops to plain white (`{colors.canvas}`) for everything else. There are no dashboard mockups, no pricing tables, no dark "product UI" surfaces. The visual vocabulary is: gradient hero, flat bordered cards, a pill-shaped auth/onboarding card, and a scroll-driven tab section.
 
-The color system centers on **Emerald Green** (`{colors.primary}` — `#00594c`), used sparingly for the single filled pill button per section and for link/label emphasis. **Deep green-black ink** (`{colors.ink}` — `#07211c`) is the body text color everywhere — never pure black. Amber, seafoam, and citrine live only inside the animated gradient mesh blobs and the `IconFlowBadge` accent lines; they never appear as button or text colors.
+The color system centers on **Ocean Blue** (`{colors.primary}` — `#144ec5`), used sparingly for the single filled pill button per section and for link/label emphasis. **Deep ink** (`{colors.ink}` — `#07211c`) is the body text color everywhere — never pure black. Amber, seafoam, and citrine live only inside the animated gradient mesh blobs and the `IconFlowBadge` accent lines; they never appear as button or text colors.
 
 Typography runs on **Inter** (`next/font/google`, weights 300/400/500/600) with the `ss01` stylistic set enabled globally on `<body>`. Headlines render at weight 300 (font-light) with tight negative tracking; UI text (nav, labels, buttons) sits at 400–600. Numeric/tabular values use the `.tabular` utility (`tnum` + tightened tracking).
 
@@ -25,29 +25,29 @@ Typography runs on **Inter** (`next/font/google`, weights 300/400/500/600) with 
 > **Source:** `app/globals.css`, `app/page.tsx`, `app/onboarding/page.tsx`.
 
 ### Brand & Accent
-- **Emerald Green** (`{colors.primary}` — `#00594c`): Filled-pill CTA, link emphasis, active tab fill.
-- **Green Deep** (`{colors.primary-deep}` — `#003d33`): Eyebrow/label text on light surfaces, avatar-initial text.
-- **Green Press** (`{colors.primary-press}` — `#00251f`): Pressed-state (reserved; not yet wired to an active-state class).
-- **Green Soft** (`{colors.primary-soft}` — `#00a19a`): Wordmark color in header/footer; gradient/flow-line mid-stop.
-- **Green Subdued** (`{colors.primary-subdued}` — `#b7e4dd`): Soft pill-tag background (e.g. the "tool" tag on project cards).
-- **Brand Dark 900** (`{colors.brand-dark-900}` — `#052e27`): Defined as a token but not currently used in any shipped surface — reserve for a future dark/inverted panel.
+- **Ocean Blue** (`{colors.primary}` — `#144ec5`): Filled-pill CTA, link emphasis, active tab fill.
+- **Blue Deep** (`{colors.primary-deep}` — `#0d3690`): Eyebrow/label text on light surfaces, avatar-initial text.
+- **Blue Press** (`{colors.primary-press}` — `#082560`): Pressed-state (reserved; not yet wired to an active-state class).
+- **Blue Soft** (`{colors.primary-soft}` — `#1b9ffe`): Wordmark color in header/footer; gradient/flow-line mid-stop.
+- **Blue Subdued** (`{colors.primary-subdued}` — `#cfe4fb`): Soft pill-tag background (e.g. the "tool" tag on project cards).
+- **Brand Dark 900** (`{colors.brand-dark-900}` — `#05173f`): Defined as a token but not currently used in any shipped surface — reserve for a future dark/inverted panel.
 - **Amber** (`{colors.amber}` — `#e8a33d`): Gradient-mesh blob stop only.
 - **Seafoam** (`{colors.seafoam}` — `#7fe0c4`): Gradient-mesh blob stop and `IconFlowBadge` flow-line stop.
 - **Citrine** (`{colors.citrine}` — `#c9a227`): Reserved gradient stop; not currently rendered.
 
 ### Surface
 - **Canvas** (`{colors.canvas}` — `#ffffff`): Default page background; card background.
-- **Canvas Soft** (`{colors.canvas-soft}` — `#f4faf8`): Mesh base gradient, `IconFlowBadge` tile fill, inactive-tab pill background, avatar placeholder fill.
+- **Canvas Soft** (`{colors.canvas-soft}` — `#f2f7fd`): Mesh base gradient, `IconFlowBadge` tile fill, inactive-tab pill background, avatar placeholder fill.
 - **Canvas Cream** (`{colors.canvas-cream}` — `#f5efd4`): The "none of this is finished" interlude band; also a mesh blob stop.
-- **Hairline** (`{colors.hairline}` — `#dce9e5`): 1px card/footer/divider borders.
-- **Hairline Input** (`{colors.hairline-input}` — `#a8d4c9`): Borders on inputs, Google button, avatar-upload circle.
+- **Hairline** (`{colors.hairline}` — `#dce6ef`): 1px card/footer/divider borders.
+- **Hairline Input** (`{colors.hairline-input}` — `#a9c9ec`): Borders on inputs, Google button, avatar-upload circle.
 
 ### Text
 - **Ink** (`{colors.ink}` — `#07211c`): Default body/heading text.
 - **Ink Secondary** (`{colors.ink-secondary}` — `#1c352e`): Hero subhead, nav link idle state.
-- **Ink Mute** (`{colors.ink-mute}` — `#5c766e`): Helper text, captions, card body copy, inactive tab label.
+- **Ink Mute** (`{colors.ink-mute}` — `#5c6c76`): Helper text, captions, card body copy, inactive tab label.
 - **Ink Mute 2** (`{colors.ink-mute-2}` — `#5a726b`): Reserved near-equivalent of ink-mute (nav-specific slot).
-- **On Primary** (`{colors.on-primary}` — `#ffffff`): Text on filled green surfaces.
+- **On Primary** (`{colors.on-primary}` — `#ffffff`): Text on filled blue surfaces.
 
 ### Semantic
 - **Error** (`{colors.error}` — `#c4362b`): Form field error border/message text. This is the only semantic color in the system — there is no success/warning/info palette.
@@ -178,14 +178,14 @@ All interactive pill/rectangular buttons are explicit `height: 37px` (`h-[37px]`
 
 **Gradient Mesh Hero** — animated, blurred, layered radial blobs (cream/amber/seafoam/teal/emerald) confined to the hero band only; see Elevation & Depth above.
 
-**`IconFlowBadge`** — a `{colors.canvas-soft}` rounded-square tile containing a Phosphor icon, with 3 faint animated SVG flow-lines (seeded pseudo-random paths) drifting behind it in a green→teal gradient stroke. The recurring leading visual for every card-grid item (values, specs, stack). Respects `prefers-reduced-motion` by freezing the gradient animation.
+**`IconFlowBadge`** — a `{colors.canvas-soft}` rounded-square tile containing a Phosphor icon, with 3 faint animated SVG flow-lines (seeded pseudo-random paths) drifting behind it in a blue→teal gradient stroke. The recurring leading visual for every card-grid item (values, specs, stack). Respects `prefers-reduced-motion` by freezing the gradient animation.
 
 **`ValuesSpecsTabs`** — a centered pill-shaped tab switcher (Values / Specs / Stack) whose content fades in (`tab-fade-in`, 0.25s). Uniquely, mouse-wheel scroll near this section is intercepted: once the section nears viewport-center, wheel deltas accumulate and step through tabs before allowing the page to keep scrolling — a scroll-jacked stepper, not plain in-page tabs.
 
 **Cream Interlude** (`bg-canvas-cream`) — a short, centered, copy-only band used once per page to create a tonal pause between the tab section and the footer.
 
-**`ReceiptIllustration`** (project-card illustration) — a small hand-built inline SVG scene, the first non-icon illustration on the site. Composed of, in the site's existing green/mint/amber palette only: a receipt strip (white fill, `{colors.hairline}` stroke, zigzag torn bottom edge) with a few text-line strokes inside; a thin `{colors.primary-soft}` scan-beam bar that sweeps top-to-bottom on a loop, exactly matching the receipt's width so it never overhangs; a thin (`1.5px`) ink-colored camera-capture corner frame (4 independent corner brackets, generous ~10px gap from the receipt edge, vertically balanced so the frame sits centered in its box) around the whole receipt; and 6 total amber sparkle accents (4-point star shape, one large + 5 scattered smaller ones at varied size/opacity) that each blink independently on their own duration/delay so they twinkle out of sync. No background box — it sits directly on the card's canvas.
-- This establishes the pattern for any future per-project illustration: flat-line SVG, brand palette only, one clear animated focal motion (the scan), thin strokes throughout, ink-colored (not primary-green) framing elements, and scattered blinking sparkle accents as the "AI/insight" motif. Reuse this recipe rather than introducing a new illustration style per project.
+**`ReceiptIllustration`** (project-card illustration) — a small hand-built inline SVG scene, the first non-icon illustration on the site. Composed of, in the site's existing blue/mint/amber palette only: a receipt strip (white fill, `{colors.hairline}` stroke, zigzag torn bottom edge) with a few text-line strokes inside; a thin `{colors.primary-soft}` scan-beam bar that sweeps top-to-bottom on a loop, exactly matching the receipt's width so it never overhangs; a thin (`1.5px`) ink-colored camera-capture corner frame (4 independent corner brackets, generous ~10px gap from the receipt edge, vertically balanced so the frame sits centered in its box) around the whole receipt; and 6 total amber sparkle accents (4-point star shape, one large + 5 scattered smaller ones at varied size/opacity) that each blink independently on their own duration/delay so they twinkle out of sync. No background box — it sits directly on the card's canvas.
+- This establishes the pattern for any future per-project illustration: flat-line SVG, brand palette only, one clear animated focal motion (the scan), thin strokes throughout, ink-colored (not primary-blue) framing elements, and scattered blinking sparkle accents as the "AI/insight" motif. Reuse this recipe rather than introducing a new illustration style per project.
 
 **`TreeIllustration`** (project-card illustration, "Jejaku Tree") — follows the `ReceiptIllustration` recipe exactly: a small family-tree diagram (root + children + grandchildren nodes, ink-colored connector lines, primary-soft node strokes) with one focal animated motion — a new branch drawing itself in and a new member node fading in with a pulsing focus ring, on a single synced 3.6s timeline (one `<g>` opacity envelope driving branch draw, node fade, and ring pulse together, not three independent animations). Same amber sparkle accents as the receipt illustration.
 
@@ -210,7 +210,7 @@ A vertical `{colors.ink-mute}` connector line with a dot per entry: filled `{col
 ### Don't
 - Don't add drop shadows to cards — the entire site is currently shadow-free by design.
 - Don't introduce dashboard/product-UI mockup imagery — this is a personal/portfolio site, not a SaaS marketing page.
-- Don't add a second filled-green button in the same view.
+- Don't add a second filled-blue button in the same view.
 - Don't use `{colors.brand-dark-900}` or `{colors.citrine}` yet — they're reserved tokens with no shipped surface; if you use them, document the new surface here.
 - Don't hardcode spacing to a strict 8px grid — match the existing arbitrary-but-consistent bracket values (23/30/46/61/91px etc.) already in use.
 

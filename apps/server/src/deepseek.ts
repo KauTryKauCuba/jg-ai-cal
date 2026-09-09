@@ -1,6 +1,7 @@
 import { EXTRACTION_PROMPT } from "./prompts.js";
 import { isResumeFalse, safeJsonParse } from "./json.js";
 import { calculateDeepSeekCostUsd } from "./pricing.js";
+import { fetchWithRetry } from "./http.js";
 import type { ProviderResult } from "./types.js";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -30,7 +31,7 @@ export async function extractResumeFromImages(
       },
     }));
 
-    const response = await fetch(DEEPSEEK_API_URL, {
+    const response = await fetchWithRetry(DEEPSEEK_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

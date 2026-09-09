@@ -4,6 +4,7 @@ import {
   calculateGroqCostUsd,
   calculateMimoCostUsd,
 } from "./pricing.js";
+import { fetchWithRetry } from "./http.js";
 
 const CALC_SYSTEM_PROMPT =
   "You are a calculator assistant. You must REFUSE to answer any question " +
@@ -46,10 +47,11 @@ async function chatCompletion(opts: {
     cachedTokens: number
   ) => number;
   stripThink?: boolean;
+  maxTokens?: number;
 }): Promise<CalcChatResult> {
   const startedAt = Date.now();
   try {
-    const response = await fetch(opts.url, {
+    const response = await fetchWithRetry(opts.url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +63,7 @@ async function chatCompletion(opts: {
         // tricky calculations, so this needs generous headroom for the hidden
         // reasoning tokens (some models reason quite verbosely) plus a short
         // final answer — too little and the response gets cut off mid-thought.
-        max_tokens: 2000,
+        max_tokens: opts.maxTokens ?? 2000,
         messages: [
           { role: "system", content: CALC_SYSTEM_PROMPT },
           { role: "user", content: opts.question },
@@ -133,6 +135,10 @@ export async function askGroqCalc(question: string): Promise<CalcChatResult> {
     question,
     calculateCostUsd: (input, output) => calculateGroqCostUsd(input, output),
     stripThink: true,
+    // Groq's account-wide output-tokens-per-minute quota is checked against
+    // the requested max, not actual usage — keep this under the observed
+    // 1000 OTPM cap so a single request can't get preflight-rejected.
+    maxTokens: 950,
   });
 }
 

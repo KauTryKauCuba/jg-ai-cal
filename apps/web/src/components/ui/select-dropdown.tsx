@@ -1,12 +1,13 @@
 import * as React from "react";
 import { Check, ChevronDown } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 // A custom-built dropdown, not a native <select> — native select popups
 // render with OS-level UA chrome that a page's CSS can't fully control (on
 // macOS/Safari this can render dark even under a locked-light design), so
 // every dropdown in this app uses this component instead. Styled to the
-// text-input spec: 37px height, hairline-input border, 6px radius.
+// text-input spec: 29.6px height, hairline-input border, 4.8px radius.
 export interface SelectDropdownOption {
   value: string;
   label: string;
@@ -54,35 +55,55 @@ export function SelectDropdown({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex h-[37px] min-w-[130px] items-center justify-between gap-2 rounded-[6px] border border-[var(--input)] bg-white px-3 text-sm text-[var(--text)] transition-colors focus-visible:border-[var(--accent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className={cn(
+          "flex h-[29.6px] min-w-[104px] items-center justify-between gap-2 rounded-[8px] border border-[var(--input)] bg-white px-3 text-sm text-[var(--text)] transition-colors hover:border-[var(--accent)] focus-visible:border-[var(--accent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60",
+          open && "border-[var(--accent)]",
+        )}
       >
         <span>{selected?.label ?? "Select"}</span>
-        <ChevronDown className="size-4 shrink-0 text-[var(--text-mute)]" />
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-[var(--text-mute)] transition-transform",
+            open && "rotate-180",
+          )}
+        />
       </button>
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute left-0 top-[calc(100%+4px)] z-10 min-w-full overflow-hidden rounded-[6px] border border-[var(--input)] bg-white py-1 shadow-[0_10px_20px_-6px_rgba(0,0,0,0.15)]"
-        >
-          {options.map((opt) => (
-            <li
-              key={opt.value}
-              role="option"
-              aria-selected={opt.value === value}
-              onClick={() => {
-                onChange(opt.value);
-                setOpen(false);
-              }}
-              className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm text-[var(--text)] hover:bg-[var(--canvas-soft)]"
-            >
-              {opt.label}
-              {opt.value === value && (
-                <Check className="size-4 shrink-0 text-[var(--accent)]" />
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            role="listbox"
+            initial={{ opacity: 0, scale: 0.96, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: -4 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="absolute left-0 top-[calc(100%+6px)] z-10 m-0 min-w-full w-max list-none overflow-hidden rounded-[10px] border border-[var(--border)] bg-white p-1.5 shadow-[0_10px_24px_-8px_rgba(7,33,28,0.2)]"
+          >
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <li
+                  key={opt.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between gap-4 rounded-[7px] px-2.5 py-1.5 text-sm transition-colors",
+                    isSelected
+                      ? "bg-[var(--accent-bg)] font-medium text-[var(--accent)]"
+                      : "text-[var(--text)] hover:bg-[var(--canvas-soft)]",
+                  )}
+                >
+                  {opt.label}
+                  {isSelected && <Check className="size-3.5 shrink-0" />}
+                </li>
+              );
+            })}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
