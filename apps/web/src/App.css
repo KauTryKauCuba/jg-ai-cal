@@ -17,6 +17,15 @@
   border-bottom: 1px solid #ddd;
 }
 
+@media (max-width: 480px) {
+  .page {
+    padding: 1.25rem 1rem;
+  }
+  .tab-bar {
+    padding: 0.75rem 1rem 0;
+  }
+}
+
 .tab-bar .tab {
   padding: 0.6rem 1.2rem;
   border: none;
@@ -43,11 +52,15 @@
 }
 
 .provider-panel {
-  flex: 0 0 420px;
-  width: 420px;
+  /* caps at 420px on desktop, shrinks to fit narrow/mobile viewports so a
+     single panel is fully visible without horizontal scroll within itself —
+     scrolling between panels (comparison-grid) still works via touch/drag. */
+  flex: 0 0 min(420px, calc(100vw - 3rem));
+  width: min(420px, calc(100vw - 3rem));
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 1rem 1.25rem;
+  box-sizing: border-box;
 }
 
 .provider-panel h2 {
@@ -61,7 +74,8 @@
 
 .provider-checkboxes {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
   margin-bottom: 1rem;
 }
 
@@ -79,9 +93,14 @@
 
 .upload-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.upload-form input[type="file"] {
+  max-width: 100%;
 }
 
 .upload-form button {
@@ -110,12 +129,15 @@
 
 .usage-box {
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
   background: #f0f4ff;
   padding: 0.75rem 1rem;
   border-radius: 6px;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .extracted section {

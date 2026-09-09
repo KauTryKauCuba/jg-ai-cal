@@ -76,7 +76,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative flex min-h-[600px] w-full flex-col items-center justify-end gap-4 p-8">
+    <div className="relative flex min-h-[600px] w-full flex-col items-center justify-end gap-4 p-4 sm:p-8">
       <GradientChatInput
         key={sessionKey}
         placeholder="Ask a calculation, e.g. what's 12% of 350?"
