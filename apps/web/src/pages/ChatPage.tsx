@@ -76,7 +76,18 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative flex min-h-[600px] w-full flex-col items-center justify-end gap-4 p-4 sm:p-8">
+    <div
+      className="relative flex w-full flex-col items-center justify-end gap-4 p-4 sm:p-8"
+      // GradientChatInput's message bubbles float above the input via
+      // absolute positioning, so they don't add to this container's layout
+      // height on their own. With justify-end anchoring the input near the
+      // bottom of a fixed box, a growing conversation would run out of room
+      // and climb up past the top of the page into the tab bar. Scaling the
+      // min-height with the number of questions asked pushes the input (and
+      // the floating room above it) further down the page as needed, so the
+      // page grows/scrolls downward instead.
+      style={{ minHeight: 500 + askedCount * 260 }}
+    >
       <GradientChatInput
         key={sessionKey}
         placeholder="Ask a calculation, e.g. what's 12% of 350?"
