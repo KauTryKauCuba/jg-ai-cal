@@ -38,14 +38,6 @@ export interface GradientChatInputProps {
   onSend?: (message: string) => void | string | Promise<string | void>;
   /** Disables the input and buttons (e.g. after a single-shot exchange). */
   disabled?: boolean;
-  /**
-   * Fired with the bubble stack's real rendered height (px) whenever it
-   * changes — since the bubbles float above the input via absolute
-   * positioning, a parent that anchors this component near the bottom of
-   * its own box (so the bubbles have room to grow into) can't otherwise
-   * know how much room is actually needed for the current message lengths.
-   */
-  onBubbleStackHeightChange?: (height: number) => void;
   className?: string;
 }
 
@@ -67,12 +59,11 @@ export default function GradientChatInput({
   placeholder = "Send Message",
   autoReply = "Got it — looking into that now ✨",
   autoReplyDelay = 650,
-  maxVisible = 4,
+  maxVisible = 20,
   sound = true,
   gradientColors = DEFAULT_GRADIENT,
   onSend,
   disabled = false,
-  onBubbleStackHeightChange,
   className,
 }: GradientChatInputProps) {
   const [value, setValue] = React.useState("");
@@ -80,17 +71,13 @@ export default function GradientChatInput({
   const idRef = React.useRef(0);
   const timersRef = React.useRef<ReturnType<typeof setTimeout>[]>([]);
   const audioRef = React.useRef<AudioContext | null>(null);
-  const bubbleStackRef = React.useRef<HTMLDivElement | null>(null);
+  const bottomAnchorRef = React.useRef<HTMLDivElement | null>(null);
 
+  // keep the latest message + input in view as the thread grows, instead of
+  // making the user manually scroll down after every reply
   React.useEffect(() => {
-    const el = bubbleStackRef.current;
-    if (!el || !onBubbleStackHeightChange) return;
-    const observer = new ResizeObserver(([entry]) => {
-      onBubbleStackHeightChange(entry.contentRect.height);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [onBubbleStackHeightChange]);
+    bottomAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages]);
 
   /* lazy AudioContext — only created on the first user gesture */
   const getAudioContext = React.useCallback(() => {
@@ -221,14 +208,45 @@ export default function GradientChatInput({
   };
 
   const hasText = value.trim().length > 0;
-  const hasMessages = messages.length > 0;
   const visible = messages.slice(-maxVisible);
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-lg", className)}>
-      {/* the input card */}
-      <div className="relative rounded-3xl border border-border bg-background p-1 shadow-[0_10px_20px_-6px_rgba(0,0,0,0.1)]">
-        <div className="relative z-[2] flex items-center justify-between gap-2 rounded-3xl bg-background p-1.5">
+    <div className={cn("relative mx-auto flex w-full max-w-lg flex-col", className)}>
+      <div className="flex flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-[0_10px_20px_-6px_rgba(0,0,0,0.1)]">
+        {/* message thread — normal top-to-bottom flow, grows with the page */}
+        {visible.length > 0 && (
+          <div className="flex flex-col gap-2 p-4">
+            <AnimatePresence initial={false}>
+              {visible.map((m) => (
+                <div
+                  key={m.id}
+                  className={cn("flex", m.sender === "user" ? "justify-end" : "justify-start")}
+                >
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                    className={cn(
+                      "max-w-[260px] break-words px-3.5 py-2.5 text-sm shadow-[0_4px_10px_-4px_rgba(0,0,0,0.15)]",
+                      m.sender === "user"
+                        ? "rounded-[14px_14px_6px_14px] border border-border bg-background text-foreground"
+                        : "rounded-[14px_14px_14px_6px] bg-primary text-primary-foreground",
+                      m.pending && "animate-pulse italic opacity-80",
+                    )}
+                  >
+                    {m.text}
+                  </motion.div>
+                </div>
+              ))}
+            </AnimatePresence>
+            <div ref={bottomAnchorRef} />
+          </div>
+        )}
+
+        {/* input row */}
+        <div className="flex items-center justify-between gap-2 p-1.5">
           <div className="flex flex-1 items-center gap-3 pr-1">
             <Button
               type="button"
@@ -267,34 +285,6 @@ export default function GradientChatInput({
           >
             <Send className="size-5" strokeWidth={2.25} />
           </Button>
-        </div>
-
-        {/* bubble stack — floats above the card */}
-        <div
-          ref={bubbleStackRef}
-          className="pointer-events-none absolute bottom-[70px] right-0 z-[1] flex w-full flex-col items-end gap-2"
-        >
-          <AnimatePresence initial={false}>
-            {visible.map((m) => (
-              <motion.div
-                key={m.id}
-                layout
-                initial={{ opacity: 0, y: 24, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                className={cn(
-                  "max-w-[260px] break-words px-3.5 py-2.5 text-sm shadow-[0_10px_20px_-6px_rgba(0,0,0,0.15)]",
-                  m.sender === "user"
-                    ? "self-end rounded-[14px_14px_6px_14px] border border-border bg-background text-foreground"
-                    : "self-start rounded-[14px_14px_14px_6px] bg-primary text-primary-foreground",
-                  m.pending && "animate-pulse italic opacity-80",
-                )}
-              >
-                {m.text}
-              </motion.div>
-            ))}
-          </AnimatePresence>
         </div>
       </div>
     </div>
