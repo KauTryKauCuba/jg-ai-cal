@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import { GradientBackground } from "./components/ui/favorites";
 import ChatPage from "./pages/ChatPage";
 import ResumePage from "./pages/ResumePage";
 
@@ -15,6 +16,9 @@ function App() {
 
   return (
     <div>
+      <div className="fixed inset-0 -z-10">
+        <GradientBackground className="h-full w-full" />
+      </div>
       <nav className="tab-bar">
         {TABS.map((tab) => (
           <button
