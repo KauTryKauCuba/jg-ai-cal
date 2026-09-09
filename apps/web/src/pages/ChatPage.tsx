@@ -34,8 +34,6 @@ export default function ChatPage() {
   }
 
   async function askQuestion(question: string): Promise<string> {
-    setAskedCount((n) => n + 1);
-
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -52,8 +50,13 @@ export default function ChatPage() {
       };
 
       if (!res.ok || !json.answer) {
+        // Don't count a failed attempt against the question limit — only a
+        // real answer should use up one of the 3 allowed questions.
+        console.error("Chat request failed:", json.error ?? res.status);
         return json.error ?? "Something went wrong, please try again.";
       }
+
+      setAskedCount((n) => n + 1);
 
       if (
         json.input_tokens !== undefined &&
@@ -70,7 +73,8 @@ export default function ChatPage() {
       }
 
       return json.answer;
-    } catch {
+    } catch (err) {
+      console.error("Chat request threw:", err);
       return "Something went wrong, please try again.";
     }
   }

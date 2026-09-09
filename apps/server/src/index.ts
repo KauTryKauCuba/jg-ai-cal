@@ -116,6 +116,7 @@ app.post("/api/chat", async (c) => {
   const result = await askers[provider as CalcChatProvider](question.trim());
 
   if ("error" in result) {
+    console.error(`[/api/chat] ${provider} failed: ${result.error}`);
     return c.json({ error: result.error }, 502);
   }
   return c.json({
