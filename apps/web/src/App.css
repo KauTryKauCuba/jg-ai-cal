@@ -78,12 +78,29 @@
 }
 
 .comparison-grid {
+  /* breaks out of .page's 960px centered column to use the full viewport
+     width, regardless of the ancestor's max-width/centering — the rest of
+     the page stays constrained, just this section goes full-bleed. */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  box-sizing: border-box;
+  padding: 0 30px 1rem;
+
   display: flex;
   flex-wrap: nowrap;
   gap: 23px;
   align-items: start;
   overflow-x: auto;
-  padding-bottom: 1rem;
+}
+
+@media (max-width: 480px) {
+  .comparison-grid {
+    padding: 0 15px 1rem;
+  }
 }
 
 .provider-panel {
