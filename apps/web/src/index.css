@@ -1,3 +1,10 @@
+/* Self-hosted Inter (no external Google Fonts request) — weights used across
+   the DESIGN.md hierarchy: 300 for headings, 400/500/600 for UI text. */
+@import "@fontsource/inter/300.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+
 /* Theme + utilities only — Preflight (the global reset) is skipped so it
    doesn't strip existing plain-CSS styling (list bullets, form defaults, etc.)
    on pages that predate Tailwind. */
@@ -12,22 +19,23 @@
 @custom-variant dark (&:is(.dark, .dark *));
 
 /* shadcn-style theme tokens, used by components/ui/*.tsx (Chat tab only).
-   Named distinctly from the site's own --border/--accent above to avoid
-   colliding with their existing meaning/usage. */
+   Repointed to the Jejaku palette (DESIGN.md) — emerald primary, off-black
+   ink — so Chat's send button, bot bubbles, and focus rings pick up the
+   same brand color as the rest of the app. */
 :root {
   --background: #ffffff;
-  --foreground: #08060d;
-  --primary: #08060d;
+  --foreground: #07211c;
+  --primary: #00594c;
   --primary-foreground: #ffffff;
-  --secondary: #f4f3ec;
-  --secondary-foreground: #08060d;
-  --muted-foreground: #6b6375;
-  --ui-accent: #f4f3ec;
-  --ui-accent-foreground: #08060d;
-  --destructive: #dc2626;
+  --secondary: #f4faf8;
+  --secondary-foreground: #07211c;
+  --muted-foreground: #5c766e;
+  --ui-accent: #f4faf8;
+  --ui-accent-foreground: #07211c;
+  --destructive: #c4362b;
   --destructive-foreground: #ffffff;
-  --input: #e5e4e7;
-  --ring: #08060d;
+  --input: #a8d4c9;
+  --ring: #00594c;
 }
 
 @theme inline {
@@ -76,21 +84,27 @@
   text-align: inherit;
 }
 
+/* Jejaku design tokens (DESIGN.md) — repoints the site's original ad-hoc
+   token values (--text/--bg/--border/--accent) to the real palette instead
+   of renaming them, so existing rules below keep working unchanged. */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
+  --text: #07211c;
+  --text-h: #07211c;
+  --text-mute: #5c766e;
   --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --canvas-soft: #f4faf8;
+  --border: #dce9e5;
+  --code-bg: #f4faf8;
+  --accent: #00594c;
+  --accent-bg: rgba(0, 89, 76, 0.08);
+  --accent-border: rgba(0, 89, 76, 0.35);
+  --error: #c4362b;
+  --social-bg: rgba(244, 250, 248, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -123,7 +137,7 @@ body {
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 300;
   color: var(--text-h);
 }
 
@@ -133,10 +147,11 @@ h1 {
      instead of inheriting :root's much smaller absolute line-height (which
      made the wrapped lines visually overlap at any h1 size). */
   line-height: 1.15;
-  letter-spacing: -1.68px;
+  letter-spacing: -1.33px;
   margin: 32px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
+    font-size: 38px;
+    letter-spacing: -1.14px;
     margin: 20px 0;
   }
 }

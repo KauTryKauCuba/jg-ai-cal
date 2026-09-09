@@ -161,12 +161,6 @@ export default function ResumePage() {
 
   return (
     <div className="page">
-      <h1>Resume Parser (Provider Comparison)</h1>
-      <p className="subtitle">
-        Upload a resume PDF to compare OCR/extraction accuracy, speed, and
-        cost across providers.
-      </p>
-
       <div className="provider-checkboxes">
         {ALL_PROVIDERS.map((provider) => (
           <label key={provider}>

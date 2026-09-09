@@ -1,5 +1,6 @@
 import { useState } from "react";
 import GradientChatInput from "@/components/ui/gradient-chat-input";
+import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { UsageBox } from "../components/UsageBox";
 
 type CalcProvider = "deepseek" | "groq" | "mimo";
@@ -9,6 +10,11 @@ const PROVIDER_LABELS: Record<CalcProvider, string> = {
   groq: "Groq",
   mimo: "MiMo",
 };
+
+const PROVIDER_OPTIONS = (Object.keys(PROVIDER_LABELS) as CalcProvider[]).map((value) => ({
+  value,
+  label: PROVIDER_LABELS[value],
+}));
 
 const MAX_QUESTIONS = 3;
 
@@ -89,20 +95,14 @@ export default function ChatPage() {
         onSend={askQuestion}
       />
 
-      <label className="flex items-center gap-2 text-sm text-gray-600">
+      <label className="flex items-center gap-2 text-sm text-[var(--text-mute)]">
         Assistant:
-        <select
+        <SelectDropdown
           value={provider}
-          onChange={(e) => setProvider(e.target.value as CalcProvider)}
+          options={PROVIDER_OPTIONS}
+          onChange={(v) => setProvider(v as CalcProvider)}
           disabled={askedCount > 0}
-          className="rounded-md border border-gray-300 px-2 py-1 text-sm"
-        >
-          {(Object.keys(PROVIDER_LABELS) as CalcProvider[]).map((p) => (
-            <option key={p} value={p}>
-              {PROVIDER_LABELS[p]}
-            </option>
-          ))}
-        </select>
+        />
       </label>
 
       {usage && (
@@ -114,7 +114,7 @@ export default function ChatPage() {
         />
       )}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-[var(--text-mute)]">
         {limitReached
           ? `Limit of ${MAX_QUESTIONS} questions reached.`
           : `Questions asked: ${askedCount}/${MAX_QUESTIONS}`}
@@ -123,7 +123,7 @@ export default function ChatPage() {
       <button
         type="button"
         onClick={resetSession}
-        className="rounded-md border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
+        className="h-[37px] rounded-full border border-[var(--input)] px-4 text-xs font-medium text-[var(--text-mute)] transition-colors hover:bg-[var(--canvas-soft)]"
       >
         Reset
       </button>

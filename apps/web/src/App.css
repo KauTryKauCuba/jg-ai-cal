@@ -1,51 +1,85 @@
+/* Hero band — gradient mesh confined to the header + page-title area only,
+   in normal document flow so it scrolls away with the page (DESIGN.md:
+   "mesh confined to the hero band only... before the page drops to plain
+   white for everything else"). */
+.hero-band {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-band-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-band-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 30px 30px 46px;
+  font-family: var(--sans);
+}
+
+@media (max-width: 480px) {
+  .hero-band-content {
+    padding: 23px 15px 30px;
+  }
+}
+
 .page {
   width: 100%;
   box-sizing: border-box;
-  padding: 2rem 1.5rem;
-  font-family: system-ui, sans-serif;
-  color: #1a1a1a;
+  padding: 0 30px 30px;
+  font-family: var(--sans);
+  color: var(--text);
   text-align: left;
-}
-
-.tab-bar {
-  display: flex;
-  gap: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 1rem 1.5rem 0;
-  font-family: system-ui, sans-serif;
-  border-bottom: 1px solid #ddd;
 }
 
 @media (max-width: 480px) {
   .page {
-    padding: 1.25rem 1rem;
+    padding: 0 15px 23px;
   }
-  .tab-bar {
-    padding: 0.75rem 1rem 0;
-  }
+}
+
+/* Tab switcher — pill-shaped segmented control (DESIGN.md's `tab-pill`),
+   floating on the hero band with a translucent white track for contrast. */
+.tab-bar {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.55);
+  margin-bottom: 23px;
 }
 
 .tab-bar .tab {
-  padding: 0.6rem 1.2rem;
+  height: 37px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
   border: none;
-  background: none;
-  font-size: 0.95rem;
+  border-radius: 9999px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mute);
   cursor: pointer;
-  color: #555;
-  border-bottom: 2px solid transparent;
+  transition: background 0.15s, color 0.15s;
 }
 
 .tab-bar .tab.active {
-  color: #1a1a1a;
-  font-weight: 600;
-  border-bottom-color: #1a1a1a;
+  background: var(--accent);
+  color: #fff;
 }
 
 .comparison-grid {
   display: flex;
   flex-wrap: nowrap;
-  gap: 1.5rem;
+  gap: 23px;
   align-items: start;
   overflow-x: auto;
   padding-bottom: 1rem;
@@ -57,9 +91,10 @@
      scrolling between panels (comparison-grid) still works via touch/drag. */
   flex: 0 0 min(420px, calc(100vw - 3rem));
   width: min(420px, calc(100vw - 3rem));
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 23px;
   box-sizing: border-box;
 }
 
@@ -68,8 +103,9 @@
 }
 
 .subtitle {
-  color: #555;
-  margin-bottom: 1.5rem;
+  color: var(--text-mute);
+  margin-bottom: 0;
+  max-width: 65ch;
 }
 
 .provider-checkboxes {
@@ -77,6 +113,7 @@
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
   margin-bottom: 1rem;
+  accent-color: var(--accent);
 }
 
 .provider-checkboxes label {
@@ -84,10 +121,11 @@
   align-items: center;
   gap: 0.4rem;
   cursor: pointer;
+  color: var(--text);
 }
 
 .hint {
-  color: #b00020;
+  color: var(--error);
   margin-bottom: 1rem;
 }
 
@@ -108,27 +146,27 @@
   align-items: center;
   gap: 0.85rem;
   padding: 1.1rem 1.25rem;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+  border: 2px dashed var(--input);
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .dropzone:hover {
-  border-color: #999;
-  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .dropzone-active {
-  border-color: #1a1a1a;
+  border-color: var(--accent);
   border-style: solid;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .dropzone-filled {
   border-style: solid;
-  border-color: #1a1a1a;
+  border-color: var(--accent);
 }
 
 .dropzone-input {
@@ -144,12 +182,12 @@
 
 .dropzone-icon {
   flex-shrink: 0;
-  color: #888;
+  color: var(--text-mute);
 }
 
 .dropzone-filled .dropzone-icon,
 .dropzone-active .dropzone-icon {
-  color: #1a1a1a;
+  color: var(--accent);
 }
 
 .dropzone-text {
@@ -162,7 +200,8 @@
 
 .dropzone-text strong {
   font-size: 0.95rem;
-  color: #1a1a1a;
+  font-weight: 500;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -170,7 +209,7 @@
 
 .dropzone-text span {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--text-mute);
 }
 
 .upload-actions {
@@ -180,53 +219,65 @@
 }
 
 .upload-button {
-  padding: 0.65rem 1.4rem;
-  background: #1a1a1a;
+  height: 37px;
+  padding: 0 22px;
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border-radius: 9999px;
+  font-family: var(--sans);
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .upload-button:hover:not(:disabled) {
-  background: #333;
+  background: #003d33;
+}
+
+.upload-button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .upload-button:disabled {
-  background: #ddd;
-  color: #999;
+  background: var(--border);
+  color: var(--text-mute);
   cursor: not-allowed;
 }
 
 .timer {
   font-variant-numeric: tabular-nums;
-  color: #555;
+  color: var(--text-mute);
 }
 
 .error-box {
-  background: #fdecea;
-  color: #611a15;
+  background: rgba(196, 54, 43, 0.08);
+  color: var(--error);
+  border: 1px solid rgba(196, 54, 43, 0.25);
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 1rem;
 }
 
 .rejection-box {
-  background: #fff8e1;
+  background: rgba(232, 163, 61, 0.12);
+  border: 1px solid rgba(232, 163, 61, 0.35);
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 .usage-box {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
-  background: #f0f4ff;
+  background: var(--canvas-soft);
+  border: 1px solid var(--border);
+  color: var(--text-mute);
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
   max-width: 100%;
@@ -239,7 +290,7 @@
 
 .extracted h3 {
   margin-bottom: 0.4rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.25rem;
 }
 
