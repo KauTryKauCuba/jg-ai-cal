@@ -95,6 +95,10 @@
   gap: 23px;
   align-items: start;
   overflow-x: auto;
+  /* centers the row when the cards fit within the viewport; "safe" falls
+     back to left-aligned/scrollable instead of clipping the first card's
+     start when there are enough cards to need horizontal scrolling. */
+  justify-content: safe center;
 }
 
 @media (max-width: 480px) {
