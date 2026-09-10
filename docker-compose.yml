@@ -36,24 +36,11 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
       - ./docker/nginx:/etc/nginx/conf.d
-      - certbot-www:/var/www/certbot
-      - certbot-certs:/etc/letsencrypt
     depends_on:
       - app
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot-www:/var/www/certbot
-      - certbot-certs:/etc/letsencrypt
-    entrypoint: >
-      sh -c "trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;"
-
 volumes:
   pgdata:
-  certbot-www:
-  certbot-certs:
