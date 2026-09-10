@@ -65,6 +65,12 @@ const PROVIDER_LABELS: Record<Provider, string> = {
 
 const ALL_PROVIDERS = Object.keys(PROVIDER_LABELS) as Provider[];
 
+interface ResumeSummary {
+  id: number;
+  filename: string;
+  created_at: string;
+}
+
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null);
   const [selectedProviders, setSelectedProviders] = useState<Set<Provider>>(
@@ -82,6 +88,47 @@ export default function ResumePage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const timerRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [history, setHistory] = useState<ResumeSummary[]>([]);
+  const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  async function loadHistory() {
+    try {
+      const res = await fetch("/api/resumes");
+      if (!res.ok) return;
+      const json = (await res.json()) as { resumes: ResumeSummary[] };
+      setHistory(json.resumes);
+    } catch {
+      // History is a convenience list — silently skip on failure.
+    }
+  }
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  async function openHistoryEntry(id: number) {
+    setHistoryLoading(true);
+    setError(null);
+    setSelectedResumeId(id);
+    try {
+      const res = await fetch(`/api/resumes/${id}`);
+      if (!res.ok) {
+        const json = (await res.json()) as { error: string };
+        setError(json.error);
+        return;
+      }
+      const json = (await res.json()) as { results: ProviderResult[] };
+      setFile(null);
+      setActiveProviders(json.results.map((r) => r.provider));
+      setResults(new Map(json.results.map((r) => [r.provider, r])));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
 
   function pickFile(f: File | null | undefined) {
     setFile(f && f.type === "application/pdf" ? f : null);
@@ -135,6 +182,7 @@ export default function ResumePage() {
     const providers = Array.from(selectedProviders);
     setLoading(true);
     setError(null);
+    setSelectedResumeId(null);
     setActiveProviders(providers);
     setResults(new Map());
 
@@ -177,7 +225,9 @@ export default function ResumePage() {
             | { type: "resume"; resumeId: number; createdAt: string }
             | { type: "result"; result: ProviderResult };
 
-          if (msg.type === "result") {
+          if (msg.type === "resume") {
+            setSelectedResumeId(msg.resumeId);
+          } else if (msg.type === "result") {
             setResults((prev) => new Map(prev).set(msg.result.provider, msg.result));
           }
         }
@@ -186,11 +236,33 @@ export default function ResumePage() {
       setError((err as Error).message);
     } finally {
       setLoading(false);
+      loadHistory();
     }
   }
 
   return (
     <div className="page">
+      {history.length > 0 && (
+        <div className="history-list">
+          {history.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              className={
+                entry.id === selectedResumeId ? "history-item history-item-active" : "history-item"
+              }
+              onClick={() => openHistoryEntry(entry.id)}
+              disabled={historyLoading}
+            >
+              <span className="history-item-name">{entry.filename}</span>
+              <span className="history-item-date">
+                {new Date(entry.created_at).toLocaleString()}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="provider-checkboxes">
         {ALL_PROVIDERS.map((provider) => (
           <label key={provider}>

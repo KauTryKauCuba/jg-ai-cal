@@ -47,6 +47,44 @@ export async function insertResume(filename: string) {
   return result.rows[0];
 }
 
+export async function listResumes() {
+  const result = await pool.query(
+    `SELECT id, filename, created_at FROM resumes ORDER BY created_at DESC`
+  );
+  return result.rows;
+}
+
+export async function getResumeWithResults(resumeId: number) {
+  const resumeResult = await pool.query(
+    `SELECT id, filename, created_at FROM resumes WHERE id = $1`,
+    [resumeId]
+  );
+  const resume = resumeResult.rows[0];
+  if (!resume) return null;
+
+  const resultsResult = await pool.query(
+    `SELECT provider, is_resume, extracted_data, input_tokens, output_tokens,
+            pages_processed, cost_usd, duration_ms, error
+     FROM extraction_results WHERE resume_id = $1 ORDER BY id`,
+    [resumeId]
+  );
+
+  return {
+    resume,
+    results: resultsResult.rows.map((row) => ({
+      provider: row.provider,
+      isResume: row.is_resume,
+      data: row.extracted_data ?? undefined,
+      inputTokens: row.input_tokens ?? undefined,
+      outputTokens: row.output_tokens ?? undefined,
+      pagesProcessed: row.pages_processed ?? undefined,
+      costUsd: Number(row.cost_usd),
+      durationMs: row.duration_ms,
+      error: row.error ?? undefined,
+    })),
+  };
+}
+
 export async function insertExtractionResult(
   resumeId: number,
   result: ProviderResult

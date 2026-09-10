@@ -4,7 +4,13 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
 import { askDeepSeekCalc, askGroqCalc, askMimoCalc } from "./calcChat.js";
-import { initSchema, insertResume, insertExtractionResult } from "./db.js";
+import {
+  initSchema,
+  insertResume,
+  insertExtractionResult,
+  listResumes,
+  getResumeWithResults,
+} from "./db.js";
 import { extractResumeFromImages as extractWithDeepSeek } from "./deepseek.js";
 import { extractResumeFromImages as extractWithGroq } from "./groq.js";
 import { extractResumeFromImages as extractWithMimo } from "./mimo.js";
@@ -108,6 +114,23 @@ app.post("/api/resumes", async (c) => {
       })
     );
   });
+});
+
+app.get("/api/resumes", async (c) => {
+  const resumes = await listResumes();
+  return c.json({ resumes });
+});
+
+app.get("/api/resumes/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id)) {
+    return c.json({ error: "Invalid resume id" }, 400);
+  }
+  const record = await getResumeWithResults(id);
+  if (!record) {
+    return c.json({ error: "Resume not found" }, 404);
+  }
+  return c.json(record);
 });
 
 const CALC_CHAT_PROVIDERS = ["deepseek", "groq", "mimo"] as const;
